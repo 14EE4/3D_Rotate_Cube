@@ -1,5 +1,5 @@
 __pycache__/
 *.pyc
 .venv/
-3D_Rotate_Cube/web_src/build/
+web_src/build/
 .DS_Store
