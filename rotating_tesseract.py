@@ -2,11 +2,14 @@ import pygame
 import math
 
 class Slider:
-    def __init__(self, x, y, w, h, min_val, max_val, initial_val, text):
+    def __init__(self, x, y, w, h, min_val, max_val, initial_val, text, reset_val=0):
         self.rect = pygame.Rect(x, y, w, h)
+        # Position reset button to the right of the slider
+        self.reset_rect = pygame.Rect(x + w + 10, y - 5, 40, 20)
         self.min_val = min_val
         self.max_val = max_val
         self.val = initial_val
+        self.reset_val = reset_val
         self.text = text
         self.dragging = False
         self.font = pygame.font.Font(None, 24)
@@ -24,14 +27,27 @@ class Slider:
         knob_x = self.rect.x + val_norm * self.rect.width
         knob_rect = pygame.Rect(knob_x - 5, self.rect.y - 5, 10, self.rect.height + 10)
         
-        # Draw knobs
+        # Draw knob
         color = (200, 200, 200) if not self.dragging else (255, 255, 255)
         pygame.draw.rect(screen, color, knob_rect)
+        
+        # Draw reset button
+        pygame.draw.rect(screen, (150, 50, 50), self.reset_rect)
+        reset_label = self.font.render("R", True, (255, 255, 255))
+        text_rect = reset_label.get_rect(center=self.reset_rect.center)
+        screen.blit(reset_label, text_rect)
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 mouse_pos = event.pos
+                
+                # Check reset button click
+                if self.reset_rect.collidepoint(mouse_pos):
+                    self.val = self.reset_val
+                    return
+
+                # Check slider click
                 val_norm = (self.val - self.min_val) / (self.max_val - self.min_val)
                 knob_x = self.rect.x + val_norm * self.rect.width
                 knob_rect = pygame.Rect(knob_x - 10, self.rect.y - 10, 20, self.rect.height + 20)
@@ -67,11 +83,12 @@ class RotatingTesseract:
         self.angle_xw = 0
         self.angle_xy = 0
         
+        # x, y, w, h, min, max, initial, text, reset_val
         self.sliders = [
-            Slider(50, 50, 200, 10, 0, 0.1, 0.02, "Speed ZW (4D)"),
-            Slider(50, 100, 200, 10, 0, 0.1, 0.00, "Speed XW (4D)"),
-            Slider(50, 150, 200, 10, 0, 0.1, 0.00, "Speed XY (3D)"),
-            Slider(50, 200, 200, 10, 50, 1000, 250, "Scale"),
+            Slider(50, 50, 200, 10, -0.1, 0.1, 0.02, "Speed ZW (4D)", 0),
+            Slider(50, 100, 200, 10, -0.1, 0.1, 0.00, "Speed XW (4D)", 0),
+            Slider(50, 150, 200, 10, -0.1, 0.1, 0.00, "Speed XY (3D)", 0),
+            Slider(50, 200, 200, 10, 50, 1000, 250, "Scale", 250),
         ]
         
     def run(self):
