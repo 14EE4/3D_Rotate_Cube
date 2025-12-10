@@ -10,6 +10,42 @@
 - **초기화 (Reset)**: 각 슬라이더 옆의 빨간색 "R" 버튼을 누르면 해당 값이 기본값(속도는 0, 크기는 250)으로 초기화됩니다.
 - **웹 버전**: 웹어셈블리(WebAssembly)로 빌드되어 브라우저에서 바로 실행할 수 있습니다.
 
+## 웹어셈블리 빌드 과정 (Detailed WebAssembly Build Process)
+
+이 프로젝트는 **Pygbag**을 사용하여 Python/Pygame 코드를 웹어셈블리(WebAssembly)로 변환하였습니다. 빌드 및 배포 과정은 다음과 같습니다.
+
+### 1. 도구 및 환경 (Tools & Environment)
+- **Engine**: Chrome V8 (브라우저 실행 환경)
+- **Build Tool**: [Pygbag](https://github.com/pygame-web/pygbag)
+- **Language**: Python 3.12+
+
+### 2. 빌드 준비 (Preparation)
+웹 빌드를 위해 프로젝트 구조를 다음과 같이 구성했습니다.
+- **`web_src/` 폴더**: 웹 빌드에 필요한 소스 코드를 별도 폴더로 분리합니다.
+- **`main.py`**: 진입점 파일의 이름은 반드시 `main.py`여야 합니다. 기존 `rotating_tesseract.py`를 `main.py`로 변경하거나 복사하여 사용합니다.
+- **`asyncio` 적용**: 웹 환경에서는 이벤트 루프가 브라우저를 차단하지 않도록 `asyncio`를 사용하여 메인 루프를 비동기로 작성해야 합니다. (코드 내 `async def run()`, `await asyncio.sleep(0)` 등 적용됨)
+
+### 3. 빌드 명령 (Build Command)
+터미널에서 다음 명령어를 실행하여 빌드합니다. `pygbag`은 소스 코드를 분석하고 필요한 자산(assets)을 패키징하여 웹 실행 가능한 형태로 변환합니다.
+
+```bash
+# 1. Pygbag 설치
+pip install pygbag
+
+# 2. 빌드 실행 (web_src 폴더를 지정)
+pygbag web_src
+```
+
+### 4. 결과물 (Output)
+빌드가 완료되면 `build/web/` 폴더가 생성됩니다.
+- `index.html`: 웹 실행을 위한 메인 HTML 파일
+- `web_src.apk`: 파이썬 코드와 자산이 패키징된 파일
+- `python home`: 브라우저 내 가상 환경 파일들
+
+### 5. 배포 (Deployment)
+GitHub Pages 배포를 위해 빌드된 `build/web/` 내부의 파일들을 프로젝트 루트의 **`docs/`** 폴더로 이동시켰습니다.
+GitHub Pages는 기본적으로 `docs/` 폴더를 웹 루트로 인식하도록 설정할 수 있기 때문입니다.
+
 ## 실행 방법 (How to Run)
 
 ### 1. 데스크탑 버전 (Python)
